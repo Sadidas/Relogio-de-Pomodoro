@@ -64,7 +64,7 @@ def ascii_xicara(h: int, m: int):
         print(f'|  O programa desperará |\n \______Às {h}:{m}_______/')
 
 
-def conta_de_horas(estudar: bool, tempo_estudo=1, tempo_descanso=1):
+def conta_de_horas(estudar: bool, tempo_estudo: int, tempo_descanso: int):
     tempo = datetime.datetime.now()
     if estudar:
         minutos_do_despertar = int(tempo.strftime("%M")) + tempo_estudo
@@ -103,11 +103,16 @@ def musiquinha():
     winsound.Beep(3136, 900)
 
 
-def despertar(estudar: bool):
-    escolha_ciclos = int(input("Escolha o número de ciclos que você deseja estudar\n"))
+def despertar(estudar: bool, tempo_estudo: int, tempo_descanso: int):
+    while True:
+        escolha_ciclos = input("Escolha o número de ciclos que você deseja estudar: ")
+        if escolha_ciclos.isdigit():
+            escolha_ciclos = int(escolha_ciclos)
+            break
+        print('\n|====\ Valor inválido /====|\n')
     for i in range(escolha_ciclos*2):
         if estudar:
-            despertar_horas, despertar_minutos = conta_de_horas(estudar)
+            despertar_horas, despertar_minutos = conta_de_horas(estudar, tempo_estudo, tempo_descanso)
             while True:
                 tempo = datetime.datetime.now()
                 if despertar_horas == int(tempo.strftime('%H')) and despertar_minutos == int(tempo.strftime('%M')):
@@ -116,7 +121,7 @@ def despertar(estudar: bool):
                     estudar = False
                     break
         else:
-            despertar_horas, despertar_minutos = conta_de_horas(estudar)
+            despertar_horas, despertar_minutos = conta_de_horas(estudar, tempo_estudo, tempo_descanso)
             while True:
                 tempo = datetime.datetime.now()
                 if despertar_horas == int(tempo.strftime('%H')) and despertar_minutos == int(tempo.strftime('%M')):
@@ -124,6 +129,22 @@ def despertar(estudar: bool):
                     musiquinha()
                     estudar = True
                     break
+
+
+def mudar_intervalos() -> tuple:
+    while True:
+        novo_estudo = input('Escolha um novo intervalo para o estudo (em min): ')
+        if novo_estudo.isdigit() and int(novo_estudo) > 0:
+            novo_estudo = int(novo_estudo)
+            break
+        print('\n|====\ Valor inválido /====|\n')
+    while True:
+        novo_descanso = input('Escolha um novo intervalo para o descanso (em min): ')
+        if novo_descanso.isdigit() and int(novo_descanso) > 0:
+            novo_descanso = int(novo_descanso)
+            break
+        print('\n|====\ Valor inválido /====|\n')
+    return novo_estudo, novo_descanso
 
 
 def tela_principal():
@@ -138,22 +159,29 @@ def tela_principal():
     return escolha
 
 
+def informacoes():
+    print('\n|====\                   Despertador só funciona em Windows                              /====|')
+    print('|====\            Para ouvir o despertador habilite os sons do sistema                   /====|')
+    print('|====\      https://tecnoblog.net/responde/o-que-e-a-tecnica-pomodoro-timer-25-minutos/  /====|\n')
+
+
 def main():
+    estudo_min, descanso_min = 25, 5
     while True:
         escolha_do_modo = tela_principal()
         match escolha_do_modo.strip(' '):
             case '1':
                 estudar = True
-                despertar(estudar)
+                despertar(estudar, estudo_min, descanso_min)
             case '2':
                 estudar = False
-                despertar(estudar)
+                despertar(estudar, estudo_min, descanso_min)
             case '3':
-                print('mudar intervalo')
+                estudo_min, descanso_min = mudar_intervalos()
             case '4':
-                print('infos')
+                informacoes()
             case _:
-                print("|====\ Digite uma opção válida! /====|")
+                print('\n|====\ Digite uma opção válida! /====|\n')
 
 if __name__ == '__main__':
     main()
